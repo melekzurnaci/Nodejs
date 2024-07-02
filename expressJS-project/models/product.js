@@ -9,32 +9,34 @@ module.exports = class Product {
   }
 
   async save() {
-    fs.readFile(productDbPath, "utf8", (err, data) => {
-      if (err) {
-        console.log(`readfile: ${err}`);
-        return;
-      }
-      const productData = JSON.parse(data);
-
-      productData.push({
-        id: productData.length + 1,
-        name: this.name,
-        price: this.price,
-      });
-
-      fs.writeFile(
-        productDbPath,
-        JSON.stringify(productData),
-        "utf8",
-        (err) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-
-          console.log("Data appendend successfully");
+    return new Promise((resolve, reject) => {
+      fs.readFile(productDbPath, "utf8", (err, data) => {
+        if (err) {
+          reject(err.message);
         }
-      );
+        console.log(`data: ${data}`);
+        const productData = JSON.parse(data);
+
+        productData.push({
+          id: productData.length + 1,
+          name: this.name,
+          price: this.price,
+        });
+
+        fs.writeFile(
+          productDbPath,
+          JSON.stringify(productData),
+          "utf8",
+          (err) => {
+            if (err) {
+              reject(err.message);
+              return;
+            }
+
+            resolve("Data appendend successfully");
+          }
+        );
+      });
     });
   }
 
@@ -42,5 +44,37 @@ module.exports = class Product {
     const data = fs.readFileSync(productDbPath, "utf8");
 
     return JSON.parse(data);
+  }
+
+  static async deleteOne(id) {
+    return new Promise((resolve, reject) => {
+      fs.readFile(productDbPath, "utf8", (err, data) => {
+        if (err) {
+          reject(err.message);
+        }
+
+        const productDbData = JSON.parse(data);
+
+        const newProductDbData = productDbData.filter((product) => {
+          return product.id !== id;
+        });
+
+        console.log(`newProductDbData: ${JSON.stringify(newProductDbData)}`);
+
+        fs.writeFile(
+          productDbPath,
+          JSON.stringify(newProductDbData),
+          "utf-8",
+          (err) => {
+            if (err) {
+              reject(err.message);
+              return;
+            }
+
+            resolve(newProductDbData);
+          }
+        );
+      });
+    });
   }
 };
