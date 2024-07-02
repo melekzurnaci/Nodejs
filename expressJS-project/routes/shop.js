@@ -1,13 +1,8 @@
 const express = require("express");
 
-// model
-const Product = require("../models/product");
+const { getAllProducts } = require("../controllers/product");
 
 const router = express.Router();
 
-router.get("/products", (req, res, next) => {
-  const products = Product.findAll();
-
-  res.status(200).json({ products });
-});
+router.get("/products", getAllProducts);
 module.exports = router;
